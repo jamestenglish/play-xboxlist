@@ -7,11 +7,13 @@ GET     /                           controllers.Application.index()
 
 # Games Pages
 GET 	/games						controllers.Application.games()
-GET 	/games/owned				controllers.Application.gamesOwned()
-GET 	/games/candidates			controllers.Application.gamesCandidates()
+#GET 	/games/owned				controllers.Application.gamesOwned()
+#GET 	/games/candidates			controllers.Application.gamesCandidates()
 POST	/games						controllers.Application.newGame()
 POST	/games/:id/vote				controllers.Application.voteGame(id: Long)
+POST	/games/:id/toggleOwnership	controllers.Application.toggleOwnership(id: Long)
 
+GET 	/reset						controllers.Application.reset()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

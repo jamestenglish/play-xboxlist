@@ -27,14 +27,13 @@ public class Application extends Controller {
 	
 	/** Display index */
     public static Result index() {
-        return ok(views.html.index.render(Game.all(), gameForm));
+        return ok(views.html.index.render(Game.candidates(), Game.owned(), gameForm));
     }
     
     /** Display all games */
     public static Result games() {
-    	
     	List<Game> games = Game.find.all();
-    	return ok(toJson(games));
+    	return ok(views.html.game.render(games));
     }
     
     /** Creates a new game */
@@ -48,11 +47,15 @@ public class Application extends Controller {
     	Form<Game> filledForm = gameForm.bindFromRequest();
     	
     	if(filledForm.hasErrors()) {
-    		return badRequest(views.html.index.render(Game.all(), filledForm));
+    		return badRequest(views.html.index.render(Game.candidates(), Game.owned(), filledForm));
     	} else {
     		Game game = filledForm.get();
     		
     		if(isUnique(game)) {
+    			//Add initial vote
+    			Vote initialVote = new Vote();
+    			game.getVotes().add(initialVote);
+    			
     			Game.create(filledForm.get());
     			flash(FLASH_MESSAGE, "Game successfully added!");
     			SessionAuthenticator.actionPerformed();
@@ -79,17 +82,17 @@ public class Application extends Controller {
 		return true;
 	}
 
-    /** Displays list of games owned */
-	public static Result gamesOwned() {
-    	List<Game> games = Game.owned();
-    	return ok(toJson(games));
-    }
-    
-	/** Displays list of games to vote on */
-    public static Result gamesCandidates() {
-    	List<Game> games = Game.candidates();
-    	return ok(toJson(games));
-    }
+//    /** Displays list of games owned */
+//	public static Result gamesOwned() {
+//    	List<Game> games = Game.owned();
+//    	return ok(toJson(games));
+//    }
+//    
+//	/** Displays list of games to vote on */
+//    public static Result gamesCandidates() {
+//    	List<Game> games = Game.candidates();
+//    	return ok(toJson(games));
+//    }
     
     /** Handles game voting */
     public static Result voteGame(Long id) {
@@ -108,6 +111,26 @@ public class Application extends Controller {
     	}
     	flash(FLASH_MESSAGE, "Vote tallied!");
     	SessionAuthenticator.actionPerformed();
+    	return redirect(routes.Application.index());
+    }
+    
+    /** Handles game voting */
+    public static Result toggleOwnership(Long id) {
+  
+    	Game game = Game.find.ref(id);
+    	//If they are submitting bad game ids
+    	//Don't do anything, there is no reason to display an error
+    	if(game != null) {
+    		game.owned = !game.owned;
+    		game.save();
+    	}
+    	flash(FLASH_MESSAGE, "Ownership status changed!");
+    	SessionAuthenticator.actionPerformed();
+    	return redirect(routes.Application.games());
+    }
+    
+    public static Result reset() {
+    	session().clear();
     	return redirect(routes.Application.index());
     }
 }

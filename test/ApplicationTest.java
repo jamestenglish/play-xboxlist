@@ -172,6 +172,39 @@ public class ApplicationTest {
 	}
 	
 	/**
+	 * Test toggling game ownership
+	 */
+	@Test
+	public void toggleOwnership() {
+		running(fakeApplication(), new Runnable() {
+			public void run() {
+				
+				ClockImpl.setInstance(dec11Clock);
+				
+				Game game = new Game();
+				game.title = "test game";
+				game.id = 1L;
+				Game.create(game);
+
+				
+			    Result result = postAndFollowRedirect("/games/1/toggleOwnership");
+				assertThat(contentAsString(result)).contains("Ownership status changed!");
+				
+				game = Game.find.ref(1L);
+				assertThat(game.owned).isTrue();
+				
+				result = postAndFollowRedirect("/games/1/toggleOwnership");
+				assertThat(contentAsString(result)).contains("Ownership status changed!");
+				
+				game = Game.find.ref(1L);
+				assertThat(game.owned).isFalse();
+			}
+			
+			
+		});
+	}
+	
+	/**
 	 * Test voting within the same day,
 	 * this should display an error message and not tally the 2nd vote
 	 */

@@ -1,0 +1,28 @@
+@(games: List[Game], gameForm: Form[Game])
+
+@import helper._
+
+@main("Game list") {
+    
+    <h1>@games.size() game(s)</h1>
+    
+    <ul>
+        @for(game <- games) {
+            <li>
+                @game.title
+                
+            </li>
+        }
+    </ul>
+    
+    <h2>Add a new game</h2>
+    
+    @form(routes.Application.newGame()) {
+        
+        @inputText(gameForm("title")) 
+        
+        <input type="submit" value="Create">
+        
+    }
+    
+}

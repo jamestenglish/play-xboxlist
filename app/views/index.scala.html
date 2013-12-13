@@ -1,0 +1,40 @@
+@(games: List[Game], gameForm: Form[Game])
+
+@import helper._
+
+@main("Game list") {
+    
+    <h1>@games.size() game(s)</h1>
+    
+    <ul>
+    	<li>
+    		@flash.get("flashMessage")
+    	</li>
+    	<li>
+    		@flash.get("flashError")
+    	</li>
+    </ul>
+    
+    <ul>
+        @for(game <- games) {
+            <li>
+                @game.title
+                
+                @form(routes.Application.voteGame(game.id)) {
+                	<input type="submit" value="Vote" />
+                }
+            </li>
+        }
+    </ul>
+    
+    <h2>Add a new game</h2>
+    
+    @form(routes.Application.newGame()) {
+        
+        @inputText(gameForm("title")) 
+        
+        <input type="submit" value="Create"/>
+        
+    }
+    
+}
